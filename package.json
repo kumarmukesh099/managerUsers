@@ -1,0 +1,19 @@
+{
+  "name": "data-manager",
+  "version": "1.0.0",
+  "description": "To perform various operations on users",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js",
+    "server": "nodemon main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-validator": "^6.12.0",
+    "mongoose": "^5.12.15",
+    "nodemon": "^2.0.7"
+  }
+}

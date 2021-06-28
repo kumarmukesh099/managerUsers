@@ -1,0 +1,3 @@
+{
+    "mongoUri" : "mongodb+srv://dataManager:dataManager123@cluster0.ge77z.mongodb.net/dataManager?retryWrites=true&w=majority"
+}
