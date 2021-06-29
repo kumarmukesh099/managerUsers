@@ -45,6 +45,9 @@ const userSchema = mongoose.Schema({
     },
     createdOn : {
         type : Date
+    },
+    updatedOn: {
+        type : Date
     }
 });
 

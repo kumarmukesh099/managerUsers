@@ -76,7 +76,7 @@ router.put('/:id', async (req, res) => {
         data.address.locality = (locality && locality) || '';
         data.address.city = (city && city) || '';
         data.address.pincode = (pincode && pincode) || '';
-        updatedOn = new Date();
+        data.updatedOn = new Date();
         data.address.location = {};
 
         data.address.location.type = (location.type && location.type) || '';

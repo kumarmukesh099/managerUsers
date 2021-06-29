@@ -2,6 +2,25 @@
 You can run the code using - npm run server
 
 
+This project will allow you to - 
+- Create a new User
+
+- Update an Existing User
+
+- Delete an User
+
+- Get all Users
+
+--- Get the limited users
+
+--- Get all Users sorted by createdOn timestamp with Pagination //you can add default limit per page in code or can pass limit in params 
+
+--- Get all Users sorted by their distance from coordinates passed in the query param of the Endpoint. 
+
+For Example. There's an API call to get all users sorted by distance from [17.3850, 78.4867] coordinates.
+
+
+
 
 Note :-
 
