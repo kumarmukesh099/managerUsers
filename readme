@@ -1,3 +1,11 @@
- Importing JSON modules is an experimental feature. This feature could change at any time
- --experimental-json-modules
---experimental-json-modules
+
+You can run the code using - npm run server
+
+
+
+Note :-
+
+ I can use import instead of require because import is an ES6 part and 
+ if we want to require/import json file then we need to pass --experimental-json-modules while running server or 
+ need to add it in the script and in ES6 Importing JSON modules is an experimental feature  in Es6. This feature could change at any time
+ that's why i used require instead of import.

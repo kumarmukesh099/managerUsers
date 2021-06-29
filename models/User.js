@@ -10,8 +10,7 @@ const userSchema = mongoose.Schema({
     },
     mobile: {
         type  : String,
-       required : true,
-       unique: true 
+       required : true
     },
     address: {
         type: Object,
@@ -40,7 +39,7 @@ const userSchema = mongoose.Schema({
                 type: String
             },  
             coordinates: {
-                type: Array
+                type: [Number]
             },
         }
     },

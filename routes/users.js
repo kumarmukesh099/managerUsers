@@ -7,7 +7,7 @@ const User = require('../models/User');
 router.post('/', [
     check('name', 'Name is required').notEmpty(),
     check('email', 'Please enter a valid email Id').isEmail(),
-    check('mobile', 'Mobile number is required').isMobilePhone("any")
+    check('mobile', 'Please enter the correct Mobile number').isMobilePhone("any").isLength(10)
 ], async (req, res) => {
     let errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -17,12 +17,9 @@ router.post('/', [
     let { name, email, mobile, address } = req.body;
     let { street, locality, city, pincode, location } = address;
     if (!location) { location = {}; }
-    location.type = location.type || "Point";
-    location.coordinates = location.coordinates || [-73.88, 40.78 ]; //added the default one if not exist
-                                                                     
     let userResponse;
     try {
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ mobile });  //mobile number is unique, two person can't have same mobile number
         if (user) {
             return res.status(404).json({ msg: 'User already exist' });
         }
@@ -66,19 +63,20 @@ router.put('/:id', async (req, res) => {
         const { name, mobile, email, address } = req.body; //destructure data from existing user
         const { street, locality, city, pincode, location } = address;
 
-        if (findUser.email && findUser.email != email) {
-            return res.status(406).json({ msg: "You can change the email address" });
+        if (findUser.mobile && findUser.mobile != mobile) { //if we want to give authority to change the number then instead of this condition , we can check the new mobile number in db whether duplicate or not 
+            return res.status(406).json({ msg: "You can't change the mobile number" });
         }
 
         let data = {};
         //map userData
         data.name = name && name;
-        data.mobile = mobile && mobile;
+        data.email = email && email;
         data.address = {};
         data.address.street = (street && street) || '';
         data.address.locality = (locality && locality) || '';
         data.address.city = (city && city) || '';
         data.address.pincode = (pincode && pincode) || '';
+        updatedOn = new Date();
         data.address.location = {};
 
         data.address.location.type = (location.type && location.type) || '';
@@ -107,26 +105,17 @@ router.delete('/:id', async (req, res) => {
 
 })
 
-//list all the users
-router.get('/', async (req, res) => {
-    try {
-        const users = await User.find();
-        res.status(200).json(users);
-    } catch (error) {
-        return res.status(500).send('Server Error' + error.message);
-    }
-
-})
-
 
 // List the Users sorted by createdOn timestamp with Pagination 
-// & limit the number of user per page
+// Limit the number of user per page
+// List the nearest users
 router.get('/', async (req, res) => {
     try {
-        let limit = 50;
-        let count = 0;
-        let pageNum = 1;
+        let limit = 0;  //limit per page , we can set here default limit per page
+        let count = 0; //number of returned records
+        let pageNum = 1;  //page number , bydefault 1 
         let skip = 0;
+        let output; //
         if (req.query.limit) {
             limit = parseInt(req.query.limit)
         }
@@ -134,37 +123,34 @@ router.get('/', async (req, res) => {
             pageNum = req.query.pageNum;
             skip = (limit) * (pageNum - 1);
         }
-        const users = await User.find().skip(skip).limit(limit).sort({ createdOn: -1 });
-        count = users && users.length;
-        res.status(200).json({ users, paging: { count, limit } });
-    } catch (error) {
-        return res.status(500).send('Server Error' + error.message);
-    }
-
-})
-
-//Get all Users sorted by their distance from coordinates passed
-router.get('/', async (req, res) => {
-    try {
-        if (!req.query.coordinates || typeof req.query.coordinates == "array") {
-            return res.status(406).json({ msg: "Coordinates must be an array" });
-        }
-        const users = await User.find({
-            'address.location':
-            {
-                $near:
+        let queries = {}; 
+        if (req.query.coordinates) {
+            req.query.coordinates = JSON.parse(req.query.coordinates);
+            queries = {
+                'address.location':
                 {
-                    $geometry: { type: "Point", coordinates: req.query.coordinates },
-                    $minDistance: 1000,
-                    $maxDistance: 5000
+                    $near:
+                    {
+                        $geometry: { type: "Point", coordinates: req.query.coordinates },
+                        $minDistance: 0,
+                        $maxDistance: 500
+                    }
                 }
-            }
-        });
-        res.status(200).json(users);
+            };
+        }
+       
+        const users = await User.find(queries).skip(skip).limit(limit).sort({ createdOn: -1 });
+        count = users && users.length;
+        output = { users, paging: { count } };
+        if (limit) {
+            output.paging.limit = limit;
+        }
+        res.status(200).json(output);
     } catch (error) {
         return res.status(500).send('Server Error' + error.message);
     }
 
 })
+
 
 module.exports = router;
